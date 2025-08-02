@@ -9,7 +9,6 @@ typedef struct {
   void (*unstage)();
   void (*update)();
   void (*button_pressed)();
-  void (*button_held)(int);
   void (*button_released)(int);
   char *name;
 } Scene;

@@ -13,7 +13,7 @@
 #define HARDWARE_TYPE MD_MAX72XX::FC16_HW
 #define MAX_DEVICES 8
 #define CS_PIN 10
-#define BUTTON_PIN 3
+#define BUTTON_PIN 2
 #define TIMEZONE -4
 
 MD_MAX72XX matrix = MD_MAX72XX(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
@@ -22,6 +22,8 @@ NTPClient timeClient(ntpUDP);
 
 extern Scene *current_scene;
 const int screen_width = 64;
+const char *ssid     = "Verizon_RJ93SH";
+const char *password = "psyche-han4-jag";
 int button_state = LOW;
 
 int elapsed_milliseconds(){
@@ -56,35 +58,27 @@ void setup() {
   timeClient.begin();
   timeClient.update();
 
+  // Initalize Button
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+
   // Initalize Scenes
-  current_scene = scene_clockface();
-  current_scene->stage();
+  scene_switch(scene_clock());
 }
 
 void loop() {
-  const int interval = 200;
-  static int held_ms = 0, last_held_update_ms = 0, prev_button_state = LOW;
-  int ms, button_state; 
+  static int ms_press_start = 0, prev_button_state = LOW;
+  int ms, button_state;
 
   button_state = digitalRead(BUTTON_PIN);
-  // if button held add ms to held ms
-  if(button_state == HIGH){
-    ms += elapsed_milliseconds();
-    held_ms += ms;
-    last_held_update_ms+=ms;
-    if(prev_button_state == LOW){ // press
-      Serial.println("Button Pressed!");
-      current_scene->button_pressed();
-    } else if(last_held_update_ms > 50){ // update every 50ms
-      current_scene->button_held(held_ms);
-      last_held_update_ms = 0;
-    }
+  if(button_state == HIGH  && prev_button_state == LOW){ // press
+    Serial.printf("Button Pressed at %d seconds!\n", millis()/1000);
+    ms_press_start = millis();
+    current_scene->button_pressed();
   }
-  if(prev_button_state == HIGH &&button_state == LOW){ // release
-    current_scene->button_released(held_ms/200);
-    held_ms = 0;
+  if(prev_button_state == HIGH && button_state == LOW){ // release
+    Serial.printf("Held button for %d seconds\n", (millis() - ms_press_start)/1000);
+    current_scene->button_released(millis() - ms_press_start);
   }
-  // on release set held_ms back to 0
-  current_scene->update();
   prev_button_state = button_state;
+  current_scene->update();
 }

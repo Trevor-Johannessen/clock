@@ -3,7 +3,7 @@
 
 #include "scene.h"
 
-Scene *scene_clockface();
-Scene *scene_error();
+Scene *scene_menu();
+Scene *scene_clock();
 
 #endif

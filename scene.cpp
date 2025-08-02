@@ -7,6 +7,10 @@ Scene *scene_create(char *name){
   Scene *scene;
   char *name_buf;
 
+  // Check if scene exists
+  if(scene = scene_find(name))
+    return scene;
+
   // Copy name
   name_buf = (char *)malloc(strlen(name)+1);
   strcpy(name_buf, name);
@@ -41,7 +45,7 @@ void scene_save(Scene *scene){
   link_add_next(saved_scenes, scene);
 }
 
-Scene *scene_switch(Scene *new_scene, struct timeval *tv){
+Scene *scene_switch(Scene *new_scene){
   Scene *old_scene;
 
   if(current_scene)

@@ -3,13 +3,16 @@
 
 static ClockFace *cf = 0x0;
 
-void _scene_clock_button_held(int ms){
-}
-
 void _scene_clock_button_pressed(){
 }
 
-void _scene_clock_button_released(int interval){
+void _scene_clock_button_released(int ms){
+  Scene *s;
+
+  if(ms > 2000){
+    s = scene_find("Menu");
+    scene_switch(s);
+  }
 }
 
 void _scene_clock_stage(){
@@ -30,20 +33,19 @@ void _scene_clock_update(){
   prev_seconds = epoch_seconds;
 }
 
-Scene *scene_clockface(){
+Scene *scene_clock(){
   Scene *clock_scene;
 
   // initalize scene
-  clock_scene = scene_create("clock");
+  clock_scene = scene_create("Clock");
   clock_scene->stage = _scene_clock_stage;
   clock_scene->unstage = _scene_clock_unstage;
   clock_scene->update = _scene_clock_update;
   clock_scene->button_pressed = _scene_clock_button_pressed;
-  clock_scene->button_held = _scene_clock_button_held;
   clock_scene->button_released = _scene_clock_button_released;
 
   // initalize clockface
-  cf = clockface_create(0,0, CLOCK_BASE);
+  cf = clockface_create(0,0, CLOCK_BASE | CLOCK_SECONDS | CLOCK_MILITARY);
 
   return clock_scene;
 }
