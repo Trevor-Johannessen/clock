@@ -25,8 +25,13 @@ const Coord blueprint_seven[] = {{1,0},{1,1},{2,2},{2,3},{3,4},{3,5},{4,6},{4,7}
 const Coord blueprint_eight[] = {{1,0},{2,0},{3,0},{0,1},{0,2},{0,3},{1,4},{2,4},{3,4},{4,1},{4,2},{4,3},{1,7},{2,7},{3,7},{4,5},{4,6},{0,5},{0,6},BLUEPRINT_FOOTER};
 const Coord blueprint_nine[] = {{0,1},{1,0},{2,0},{3,0},{4,1},{4,2},{4,3},{4,4},{4,5},{4,6},{1,4},{2,4},{3,4},{0,5},{0,6},{1,7},{2,7},{3,7},BLUEPRINT_FOOTER};
 const Coord blueprint_A[] = {{0,0},{1,0},{2,0},{4,0},{5,0},{6,0},{1,1},{1,2},{1,3},{5,1},{5,2},{5,3},{2,2},{3,2},{4,2},{2,4},{2,5},{4,4},{4,5},{3,6},BLUEPRINT_FOOTER};
+const Coord blueprint_C[] = {{1,0},{2,0},{3,0},{4,1},{0,1},{0,2},{0,3},{0,4},{0,5},{0,6},{1,7},{2,7},{3,7},{4,6},BLUEPRINT_FOOTER};
 const Coord blueprint_M[] = {{0,0},{1,0},{2,0},{4,0},{5,0},{6,0},{1,1},{1,2},{1,3},{1,4},{1,5},{1,6},{5,1},{5,2},{5,3},{5,4},{5,5},{5,6},{2,5},{4,5},{3,4},{3,3},BLUEPRINT_FOOTER};
 const Coord blueprint_P[] = {{0,0},{1,0},{2,0},{1,1},{1,2},{1,3},{1,4},{1,5},{1,6},{0,6},{2,6},{3,6},{2,3},{3,3},{4,4},{4,5},BLUEPRINT_FOOTER};
+const Coord blueprint_c[] = {{1,0},{2,0},{0,1},{0,2},{0,3},{1,4},{1,5},BLUEPRINT_FOOTER};
+const Coord blueprint_k[] = {{0,0},{0,1},{0,2},{0,3},{0,4},{0,5},{0,6},{0,7},{1,3},{2,4},{2,5},{2,2},{2,1},{2,0},BLUEPRINT_FOOTER};
+const Coord blueprint_l[] = {{0,0},{2,0},{1,0},{1,1},{1,2},{1,3},{1,4},{1,5},{1,6},{1,7},{0,7},BLUEPRINT_FOOTER};
+const Coord blueprint_o[] = {{1,0},{2,0},{3,1},{3,2},{3,3},{2,4},{1,4},{0,1},{0,2},{0,3},BLUEPRINT_FOOTER};
 const Coord blueprint_colon[] = {{0,1},{0,2},{0,5},{0,6},BLUEPRINT_FOOTER};
 const Blueprint letter_blueprint[] = {
     0x0, // 0
@@ -96,7 +101,7 @@ const Blueprint letter_blueprint[] = {
     0x0, // @
     {blueprint_A},
     0x0, // B
-    0x0, // C
+    {blueprint_C},
     0x0, // D
     0x0, // E
     0x0, // F
@@ -119,7 +124,40 @@ const Blueprint letter_blueprint[] = {
     0x0, // W
     0x0, // X
     0x0, // Y
-    0x0  // Z
+    0x0, // Z
+    0x0, // [
+    0x0, // \
+    0x0, // ]
+    0x0, // ^
+    0x0, // _
+    0x0, // `
+    0x0, // Theres a missing character but idk whast it is
+    0x0, // a
+    0x0, // b
+    {blueprint_c},
+    0x0, // d
+    0x0, // e
+    0x0, // f
+    0x0, // g
+    0x0, // h
+    0x0, // i
+    0x0, // j
+    {blueprint_k},
+    {blueprint_l},
+    0x0, // m
+    0x0, // n
+    {blueprint_o},
+    0x0, // p
+    0x0, // q
+    0x0, // r
+    0x0, // s
+    0x0, // t
+    0x0, // u
+    0x0, // v
+    0x0, // w
+    0x0, // x
+    0x0, // y
+    0x0, // z
 };
 
 void sentence_write(char *str, int x, int y);

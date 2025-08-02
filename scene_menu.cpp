@@ -7,13 +7,16 @@
 Menu *selector;
 char *icon_strings[MENU_ICON_COUNT] = {
   "Clock",
-  "Placeholder"
+  "kcolC"
 };
 
 void _scene_menu_button_pressed(){
 }
 
 void _scene_menu_button_released(int ms){
+  selector->cursor++;
+  if(selector->cursor >= MENU_ICON_COUNT)
+    selector->cursor = 0;
 }
 
 void _scene_menu_select(char icon, char *name){
@@ -25,7 +28,8 @@ void _scene_menu_select(char icon, char *name){
 }
 
 void _scene_menu_stage(){
-  // dont need to write icon here because it will be written on the first call of update
+  character_write(selector->items[selector->cursor].icon, 0, 0);
+  sentence_write(icon_strings[selector->cursor], 12, 0);
 }
 
 void _scene_menu_unstage(){
@@ -33,15 +37,33 @@ void _scene_menu_unstage(){
 }
 
 void _scene_menu_update(){
-  static char prev_icon = '\0';
-  char icon;
+  const int frames = 8;
+  static char prev_cursor = 0;
+  char icon, prev_icon, cursor, i;
+  unsigned int ms;
 
-  icon = selector->items[selector->cursor].icon;
-  if(prev_icon != icon){
-    if(prev_icon)
-      character_write(prev_icon, 0, 0);
-    character_write(icon, 0, 0);
-    prev_icon = icon;
+  // Transition with animation between icons
+  if(prev_cursor != selector->cursor){
+    icon = selector->items[selector->cursor].icon;
+    prev_icon = selector->items[prev_cursor].icon;
+    for(i=0;i<frames;i++){
+      // Erase and rewrite old icon
+      if(prev_icon){
+        character_write(prev_icon, 0, -i);
+        sentence_write(icon_strings[prev_cursor], 12, -i);
+        character_write(prev_icon, 0, -i-1);
+        sentence_write(icon_strings[prev_cursor], 12, -i-1);
+      }
+      // Write new Icon
+      character_write(icon, 0, frames-i);
+      sentence_write(icon_strings[selector->cursor], 12, frames-i);
+      character_write(icon, 0, frames-i-1);
+      sentence_write(icon_strings[selector->cursor], 12, frames-i-1);
+
+      ms=millis();
+      while(millis()<ms+50);
+    }
+    prev_cursor = selector->cursor;
   }
 }
 
