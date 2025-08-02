@@ -11,7 +11,7 @@ Menu *menu_create(char width, char size){
     menu->width=width; // width of the menu
     menu->size=size; // number of items in the menu
     menu->cursor=0;
-    menu->window_start = 0;
+    menu->window_start=0;
     for(i=0;i<size;i++){
         menu->items[i].icon='o';
         menu->items[i].display_text=0x0;

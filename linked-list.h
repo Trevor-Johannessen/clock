@@ -1,8 +1,9 @@
-#include <string.h>
-#include <stdlib.h>
-
 #ifndef LINKEDLIST_H
 #define LINKEDLIST_H
+
+#include <string.h>
+#include <stdlib.h>
+#include <Arduino.h>
 
 typedef struct link {
     struct link *next;

@@ -25,7 +25,7 @@ Scene *scene_create(char *name){
 Scene *scene_find(char *name){
   Link *cur;
 
-  for(cur=saved_scenes; link_has_next(cur); cur=link_next(cur))
+  for(cur=saved_scenes; cur; cur=link_next(cur))
       if(!strcmp(((Scene *)cur->payload)->name, name))
         return (Scene *)cur->payload;
   return 0x0;
@@ -42,7 +42,7 @@ void scene_free(Scene *scene){
 void scene_save(Scene *scene){
   if(link_contains(saved_scenes, scene))
     return;
-  link_add_next(saved_scenes, scene);
+  saved_scenes = link_add_first(saved_scenes, scene);
 }
 
 Scene *scene_switch(Scene *new_scene){

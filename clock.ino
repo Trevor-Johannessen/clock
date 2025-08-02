@@ -1,7 +1,3 @@
-#include "clockface.h"
-#include "letters.h"
-#include "scene.h"
-#include "scene_list.h"
 #include <MD_MAX72xx.h>
 #include <NTPClient.h>
 #include <SPI.h>
@@ -9,6 +5,10 @@
 #include <time.h>
 #include <WiFi.h>
 #include <WiFiUdp.h>
+#include "clockface.h"
+#include "letters.h"
+#include "scene.h"
+#include "scene_list.h"
 
 #define HARDWARE_TYPE MD_MAX72XX::FC16_HW
 #define MAX_DEVICES 8
@@ -62,6 +62,10 @@ void setup() {
   pinMode(BUTTON_PIN, INPUT_PULLUP);
 
   // Initalize Scenes
+  scene_save(scene_menu());
+  scene_save(scene_clock());
+
+  // Transition to first scene
   scene_switch(scene_clock());
 }
 

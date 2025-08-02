@@ -19,19 +19,17 @@ void _scene_menu_button_released(int ms){
 void _scene_menu_select(char icon, char *name){
   Scene *s;
 
-  if(!(s = scene_find(name))){
-    Serial.printf("Could not find scene '%s'.\n", name);
+  if(!(s = scene_find(name)))
     return;
-  }
   scene_switch(s);
 }
 
 void _scene_menu_stage(){
-  character_write(0, 0, selector->items[selector->cursor].icon);
+  // dont need to write icon here because it will be written on the first call of update
 }
 
 void _scene_menu_unstage(){
-  character_write(0, 0, selector->items[selector->cursor].icon);
+  character_write(selector->items[selector->cursor].icon, 0, 0);
 }
 
 void _scene_menu_update(){
@@ -41,8 +39,8 @@ void _scene_menu_update(){
   icon = selector->items[selector->cursor].icon;
   if(prev_icon != icon){
     if(prev_icon)
-      character_write(0,0, prev_icon);
-    character_write(0,0, icon);
+      character_write(prev_icon, 0, 0);
+    character_write(icon, 0, 0);
     prev_icon = icon;
   }
 }
