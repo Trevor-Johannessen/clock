@@ -7,16 +7,20 @@
 Menu *selector;
 char *icon_strings[MENU_ICON_COUNT] = {
   "Clock",
-  "kcolC"
+  "PPP"
 };
 
 void _scene_menu_button_pressed(){
 }
 
 void _scene_menu_button_released(int ms){
-  selector->cursor++;
-  if(selector->cursor >= MENU_ICON_COUNT)
-    selector->cursor = 0;
+  if(ms < 500){
+    selector->cursor++;
+    if(selector->cursor >= MENU_ICON_COUNT)
+      selector->cursor = 0;
+  } else {
+    menu_activate(selector);
+  }
 }
 
 void _scene_menu_select(char icon, char *name){
@@ -34,6 +38,7 @@ void _scene_menu_stage(){
 
 void _scene_menu_unstage(){
   character_write(selector->items[selector->cursor].icon, 0, 0);
+  sentence_write(icon_strings[selector->cursor], 12, 0);
 }
 
 void _scene_menu_update(){

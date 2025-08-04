@@ -24,7 +24,6 @@ void character_write(char c, int x, int y){
 void sentence_write(char *str, int x, int y){
 	int i, cursor;
 	cursor = 0;
-
 	for(i=0;i<strlen(str) && cursor < screen_width;i++){
 		character_write(str[i], x+cursor, y);
 		if(str[i] == ' ')

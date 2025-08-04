@@ -18,35 +18,35 @@ void clockface_erase(ClockFace *cf){
   if(cf->prev_time_string){
     sentence_write(cf->prev_time_string, cf->x, cf->y);
     free(cf->prev_time_string);
+    cf->prev_time_string = 0x0;
   }
 }
 
 void clockface_free(ClockFace *cf){
+  if(cf->prev_time_string)
+    free(cf->prev_time_string);
   free(cf);
 }
 
-void clockface_write(ClockFace *cf){
+void clockface_write(ClockFace *cf, int hour, int minute, int second){
   char *time_string, *suffix;
   char h[3],m[3],s[3];
-  int hour, minute, second;
 
   time_string = (char *)calloc(13, sizeof(char));
   suffix = (char *)malloc(3*sizeof(char));
-
-  hour = timeClient.getHours();
-  minute = timeClient.getMinutes();
-  second = timeClient.getSeconds();
-  suffix = "AM";
+  suffix[1] = 'M';
 
   // if AM/PM set overhead
   if(!cf->settings.bits.military){
-    if(hour >= 12){
+    if(hour < 12)
+      suffix[0] = 'A';
+    else {
       suffix[0] = 'P';
       hour-=12;
     }
+    if(hour == 0)
+      hour = 12;
   }
-  if(hour == 0)
-    hour = 12;
 
   // Get time
   snprintf(h, 3, "%02d", hour);
@@ -72,5 +72,19 @@ void clockface_write(ClockFace *cf){
     clockface_erase(cf);
     sentence_write(time_string, cf->x, cf->y);
   }
+
+  // Cleanup
+  if(cf->prev_time_string)
+    free(cf->prev_time_string);
+  free(suffix);
   cf->prev_time_string = time_string;
+}
+
+void clockface_write_now(ClockFace *cf){
+  int hour, minute, second;
+  
+  hour = timeClient.getHours();
+  minute = timeClient.getMinutes();
+  second = timeClient.getSeconds();
+  clockface_write(cf, hour, minute, second);
 }

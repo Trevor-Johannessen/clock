@@ -9,14 +9,14 @@ void _scene_clock_button_pressed(){
 void _scene_clock_button_released(int ms){
   Scene *s;
 
-  if(ms > 2000){
+  if(ms > 700){
     s = scene_find("Menu");
     scene_switch(s);
   }
 }
 
 void _scene_clock_stage(){
-  clockface_write(cf);
+  clockface_write_now(cf);
 }
 
 void _scene_clock_unstage(){
@@ -28,7 +28,7 @@ void _scene_clock_update(){
   unsigned long epoch_seconds;
   epoch_seconds =  timeClient.getEpochTime();
   if (epoch_seconds != prev_seconds){
-    clockface_write(cf);
+    clockface_write_now(cf);
   }
   prev_seconds = epoch_seconds;
 }

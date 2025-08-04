@@ -32,6 +32,7 @@ typedef struct {
 ClockFace *clockface_create(int x, int y, unsigned char settings_vector);
 void clockface_erase(ClockFace *cf);
 void clockface_free(ClockFace *cf);
-void clockface_write(ClockFace *cf);
+void clockface_write(ClockFace *cf, int hour, int minute, int second);
+void clockface_write_now(ClockFace *cf);
 
 #endif

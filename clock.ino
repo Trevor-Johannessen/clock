@@ -5,7 +5,6 @@
 #include <time.h>
 #include <WiFi.h>
 #include <WiFiUdp.h>
-#include "clockface.h"
 #include "letters.h"
 #include "scene.h"
 #include "scene_list.h"
@@ -25,15 +24,6 @@ const int screen_width = 64;
 const char *ssid     = "Verizon_RJ93SH";
 const char *password = "psyche-han4-jag";
 int button_state = LOW;
-
-int elapsed_milliseconds(){
-  static int prev_ms = 0;
-  int curr_ms;
-  curr_ms = millis();
-  if(curr_ms > prev_ms)
-    return curr_ms-prev_ms;
-  return 1+curr_ms-prev_ms;
-}
 
 void setup() {
   Serial.begin(9600);
@@ -64,25 +54,50 @@ void setup() {
   // Initalize Scenes
   scene_save(scene_menu());
   scene_save(scene_clock());
+  scene_save(scene_timer());
 
   // Transition to first scene
   scene_switch(scene_clock());
 }
 
 void loop() {
-  static int ms_press_start = 0, prev_button_state = LOW;
-  int ms, button_state;
+  static int prev_button_state = LOW, held_lights_on = 0, held_light_blink = 1, held_light_last_blink;
+  static long ms_press_start = 0;
+  int ms, button_state, elapsed_time, i;
 
   button_state = digitalRead(BUTTON_PIN);
   if(button_state == HIGH  && prev_button_state == LOW){ // press
-    Serial.printf("Button Pressed at %d seconds!\n", millis()/1000);
     ms_press_start = millis();
     current_scene->button_pressed();
+  }else if(prev_button_state == HIGH && button_state == HIGH){ // hold
+    i = held_lights_on;
+    held_lights_on = (millis()-ms_press_start) / 100;
+    if(held_lights_on < 14){ // building held lights
+      if(held_lights_on > 7)
+        held_lights_on = 7;
+      for(;i<held_lights_on+1; i++)
+        matrix.setPoint(i, screen_width-1, 1);
+    }else if(millis()-held_light_last_blink > 300){ // full, start blinking
+      held_light_blink*=-1;
+      held_light_last_blink = millis();
+      for(i=0;i<8; i++)
+        matrix.setPoint(i, screen_width-1, held_light_blink>0);
+    }
+  }else if(prev_button_state == HIGH && button_state == LOW){ // release
+    // Turn off held lights
+    for(i=0; i<held_lights_on+1;i++)
+      matrix.setPoint(i, screen_width-1, 0);
+    held_lights_on = 0;
+    // Update Scene
+    elapsed_time = millis() - ms_press_start;
+    Serial.printf("Held button for %ldms.\n", elapsed_time);
+    if(elapsed_time > 2000){
+      scene_switch(scene_find("Menu"));
+      goto update_cleanup;
+    }else
+      current_scene->button_released(elapsed_time);
   }
-  if(prev_button_state == HIGH && button_state == LOW){ // release
-    Serial.printf("Held button for %d seconds\n", (millis() - ms_press_start)/1000);
-    current_scene->button_released(millis() - ms_press_start);
-  }
-  prev_button_state = button_state;
   current_scene->update();
+  update_cleanup:
+  prev_button_state = button_state;
 }

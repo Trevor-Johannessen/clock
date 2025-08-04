@@ -5,5 +5,6 @@
 
 Scene *scene_menu();
 Scene *scene_clock();
+Scene *scene_timer();
 
 #endif
