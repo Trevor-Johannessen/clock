@@ -55,6 +55,7 @@ void setup() {
   scene_save(scene_menu());
   scene_save(scene_clock());
   scene_save(scene_timer());
+  scene_save(scene_counter());
 
   // Transition to first scene
   scene_switch(scene_clock());

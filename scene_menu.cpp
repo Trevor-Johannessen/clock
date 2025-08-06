@@ -2,12 +2,13 @@
 #include "menu.h"
 #include "scene.h"
 
-#define MENU_ICON_COUNT 2
+#define MENU_ICON_COUNT 3
 
 Menu *selector;
 char *icon_strings[MENU_ICON_COUNT] = {
   "Clock",
-  "PPP"
+  "PPP",
+  "APA"
 };
 
 void _scene_menu_button_pressed(){
@@ -86,6 +87,7 @@ Scene *scene_menu(){
   selector = menu_create(1, MENU_ICON_COUNT);
   menu_register(selector, 0, 'A', icon_strings[0], _scene_menu_select);
   menu_register(selector, 1, 'P', icon_strings[1], _scene_menu_select);
+  menu_register(selector, 2, 'M', icon_strings[2], _scene_menu_select);
 
   return menu_scene;
 }
