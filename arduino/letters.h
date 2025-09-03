@@ -4,6 +4,7 @@
 #include <MD_MAX72xx.h>
 
 #define BLUEPRINT_FOOTER {-1,-1}
+#define CHARACTER_DEG 1
 
 typedef const int Coord[2];
 typedef struct {
@@ -12,7 +13,9 @@ typedef struct {
 
 extern MD_MAX72XX matrix;
 extern const int screen_width;
-
+const Coord blueprint_deg_symbol[] = {{0,6},{1,6},{0,7},{1,7},BLUEPRINT_FOOTER};
+const Coord blueprint_clock_symbol[] = {{0,1},{0,2},{0,3},{0,4},{0,5},{6,1},{6,2},{6,3},{6,4},{6,5},{1,0},{2,0},{3,0},{4,0},{5,0},{1,6},{2,6},{3,6},{4,6},{5,6},{3,7},{4,7},{3,3},{3,4},{3,5},{4,3},BLUEPRINT_FOOTER};
+const Coord blueprint_counter_symbol[] = {{0,3},{1,3},{2,3},{1,2},{1,4},{4,1},{5,1},{6,1},{5,2},{5,3},{5,4},{5,5},{5,6},{4,5},BLUEPRINT_FOOTER};
 const Coord blueprint_space[] = {BLUEPRINT_FOOTER};
 const Coord blueprint_zero[] = {{0,1},{0,2},{0,3},{0,4},{0,5},{0,6},{1,7},{2,7},{3,7},{4,7},{5,1},{5,2},{5,3},{5,4},{5,5},{5,6},{1,0},{2,0},{3,0},{4,0},{1,1},{2,2},{2,3},{3,4},{3,5},{4,6},BLUEPRINT_FOOTER};
 const Coord blueprint_one[] = {{0,0},{1,0},{2,0},{3,0},{2,1},{2,2},{2,3},{2,4},{2,5},{2,6},{2,7},{0,5},{1,6},{1,5},BLUEPRINT_FOOTER};
@@ -24,20 +27,21 @@ const Coord blueprint_six[] = {{1,0},{2,0},{3,0},{4,1},{4,2},{4,3},{3,4},{2,4},{
 const Coord blueprint_seven[] = {{1,0},{1,1},{2,2},{2,3},{3,4},{3,5},{4,6},{4,7},{0,6},{0,7},{1,7},{2,7},{3,7},BLUEPRINT_FOOTER};
 const Coord blueprint_eight[] = {{1,0},{2,0},{3,0},{0,1},{0,2},{0,3},{1,4},{2,4},{3,4},{4,1},{4,2},{4,3},{1,7},{2,7},{3,7},{4,5},{4,6},{0,5},{0,6},BLUEPRINT_FOOTER};
 const Coord blueprint_nine[] = {{0,1},{1,0},{2,0},{3,0},{4,1},{4,2},{4,3},{4,4},{4,5},{4,6},{1,4},{2,4},{3,4},{0,5},{0,6},{1,7},{2,7},{3,7},BLUEPRINT_FOOTER};
-const Coord blueprint_A[] = {{0,0},{1,0},{2,0},{4,0},{5,0},{6,0},{1,1},{1,2},{1,3},{5,1},{5,2},{5,3},{2,2},{3,2},{4,2},{2,4},{2,5},{4,4},{4,5},{3,6},BLUEPRINT_FOOTER};
+const Coord blueprint_A[] = {{0,0},{1,0},{2,0},{4,0},{5,0},{6,0},{1,1},{1,2},{1,3},{1,4},{5,1},{5,2},{5,3},{5,4},{2,3},{3,3},{4,3},{2,5},{2,6},{4,5},{4,6},{3,7},BLUEPRINT_FOOTER};
 const Coord blueprint_C[] = {{1,0},{2,0},{3,0},{4,1},{0,1},{0,2},{0,3},{0,4},{0,5},{0,6},{1,7},{2,7},{3,7},{4,6},BLUEPRINT_FOOTER};
+const Coord blueprint_F[] = {{0,0},{0,1},{0,2},{0,3},{0,4},{0,5},{0,6},{0,7},{1,7},{2,7},{3,7},{1,4},{2,4},BLUEPRINT_FOOTER};
 const Coord blueprint_M[] = {{0,0},{1,0},{2,0},{4,0},{5,0},{6,0},{1,1},{1,2},{1,3},{1,4},{1,5},{1,6},{5,1},{5,2},{5,3},{5,4},{5,5},{5,6},{2,5},{4,5},{3,4},{3,3},BLUEPRINT_FOOTER};
 const Coord blueprint_P[] = {{0,0},{1,0},{2,0},{1,1},{1,2},{1,3},{1,4},{1,5},{1,6},{0,6},{2,6},{3,6},{2,3},{3,3},{4,4},{4,5},BLUEPRINT_FOOTER};
-const Coord blueprint_c[] = {{1,0},{2,0},{0,1},{0,2},{0,3},{1,4},{1,5},BLUEPRINT_FOOTER};
-const Coord blueprint_k[] = {{0,0},{0,1},{0,2},{0,3},{0,4},{0,5},{0,6},{0,7},{1,3},{2,4},{2,5},{2,2},{2,1},{2,0},BLUEPRINT_FOOTER};
+const Coord blueprint_c[] = {{1,0},{2,0},{0,1},{0,2},{0,3},{1,4},{2,4},BLUEPRINT_FOOTER};
+const Coord blueprint_k[] = {{0,0},{0,1},{0,2},{0,3},{0,4},{0,5},{0,6},{1,3},{2,4},{2,5},{2,2},{2,1},{2,0},BLUEPRINT_FOOTER};
 const Coord blueprint_l[] = {{0,0},{2,0},{1,0},{1,1},{1,2},{1,3},{1,4},{1,5},{1,6},{1,7},{0,7},BLUEPRINT_FOOTER};
 const Coord blueprint_o[] = {{1,0},{2,0},{3,1},{3,2},{3,3},{2,4},{1,4},{0,1},{0,2},{0,3},BLUEPRINT_FOOTER};
 const Coord blueprint_colon[] = {{0,1},{0,2},{0,5},{0,6},BLUEPRINT_FOOTER};
 const Blueprint letter_blueprint[] = {
     0x0, // 0
-    0x0, // 1
-    0x0, // 2
-    0x0, // 3
+    {blueprint_deg_symbol}, // 1
+    {blueprint_clock_symbol}, // 2
+    {blueprint_counter_symbol}, // 3
     0x0, // 4
     0x0, // 5
     0x0, // 6
@@ -104,7 +108,7 @@ const Blueprint letter_blueprint[] = {
     {blueprint_C},
     0x0, // D
     0x0, // E
-    0x0, // F
+    {blueprint_F},
     0x0, // G
     0x0, // H
     0x0, // I

@@ -85,9 +85,9 @@ Scene *scene_menu(){
   menu_scene->button_released = _scene_menu_button_released;
 
   selector = menu_create(1, MENU_ICON_COUNT);
-  menu_register(selector, 0, 'A', icon_strings[0], _scene_menu_select);
-  menu_register(selector, 1, 'P', icon_strings[1], _scene_menu_select);
-  menu_register(selector, 2, 'M', icon_strings[2], _scene_menu_select);
+  menu_register(selector, 0, 2, icon_strings[0], _scene_menu_select);
+  menu_register(selector, 1, 2, icon_strings[1], _scene_menu_select);
+  menu_register(selector, 2, 3, icon_strings[2], _scene_menu_select);
 
   return menu_scene;
 }

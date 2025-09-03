@@ -1,3 +1,5 @@
+
+#include <HTTPClient.h>
 #include <MD_MAX72xx.h>
 #include <NTPClient.h>
 #include <SPI.h>
@@ -5,9 +7,6 @@
 #include <time.h>
 #include <WiFi.h>
 #include <WiFiUdp.h>
-#include "letters.h"
-#include "scene.h"
-#include "scene_list.h"
 
 #define HARDWARE_TYPE MD_MAX72XX::FC16_HW
 #define MAX_DEVICES 8
@@ -15,9 +14,15 @@
 #define BUTTON_PIN 2
 #define TIMEZONE -4
 
+#include "letters.h"
+#include "scene.h"
+#include "scene_list.h"
+
+
 MD_MAX72XX matrix = MD_MAX72XX(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
+HTTPClient http;
 
 extern Scene *current_scene;
 const int screen_width = 64;
@@ -41,7 +46,7 @@ void setup() {
   // Initalize LED Matrix
   matrix.begin();
   matrix.clear();
-  matrix.control(MD_MAX72XX::INTENSITY, 5);  // Set brightness
+  matrix.control(MD_MAX72XX::INTENSITY, 1);  // Set brightness
 
   // Initalize Time
   timeClient.setTimeOffset(3600*TIMEZONE);

@@ -4,7 +4,8 @@ extern NTPClient timeClient;
 
 ClockFace *clockface_create(int x, int y, unsigned char settings_vector){
   ClockFace *cf;
-  
+
+  // Initalize clockface
   cf = (ClockFace *)malloc(sizeof(*cf));
   cf->x = x;
   cf->y = y;
@@ -32,7 +33,7 @@ void clockface_write(ClockFace *cf, int hour, int minute, int second){
   char *time_string, *suffix;
   char h[3],m[3],s[3];
 
-  time_string = (char *)calloc(13, sizeof(char));
+  time_string = (char *)calloc(11, sizeof(char));
   suffix = (char *)malloc(3*sizeof(char));
   suffix[1] = 'M';
 
@@ -54,16 +55,16 @@ void clockface_write(ClockFace *cf, int hour, int minute, int second){
   snprintf(s, 3, "%02d", second);
 
   // Set full time (assume military with seconds)
-  snprintf(time_string, 13, "%s::%s::%s%s", h, m, s, suffix);
+  snprintf(time_string, 11, "%s:%s:%s%s", h, m, s, suffix);
 
   // Set military
   if(cf->settings.bits.military){
-    time_string[10] = '\0';
+    time_string[8] = '\0';
   }
 
   // Remove seconds if not set 
   if(!cf->settings.bits.seconds)
-    memcpy(time_string+6,time_string+10, 3);
+    memcpy(time_string+4,time_string+8, 3);
 
   // Write new time
   if(!cf->prev_time_string)
