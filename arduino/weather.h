@@ -9,6 +9,12 @@
 #define WEATHER_DEG_SYMBOL 0x4
 #define WEATHER_UNIT 0x8
 
+#define CHARACTER_ICON_SUN 4
+#define CHARACTER_ICON_CLOUD 5
+#define CHARACTER_ICON_RAIN 6
+#define CHARACTER_ICON_STORM 7
+#define CHARACTER_ICON_SNOW 8
+
 typedef struct {
   unsigned char metric: 1;
   unsigned char show_icon : 1;

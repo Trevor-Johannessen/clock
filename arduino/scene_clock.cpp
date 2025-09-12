@@ -83,7 +83,8 @@ Scene *scene_clock(){
   clock_scene->button_released = _scene_clock_button_released;
 
   // initalize objects
-  cf = clockface_create(2,0, CLOCK_BASE | CLOCK_SECONDS | CLOCK_MILITARY);
+  //cf = clockface_create(2,0, CLOCK_BASE | CLOCK_SECONDS | CLOCK_MILITARY);
+  cf = clockface_create(2,0, CLOCK_BASE);
   weather = weather_create("329592", WEATHER_BASE | WEATHER_DEG_SYMBOL);
   weather_update(weather);
 

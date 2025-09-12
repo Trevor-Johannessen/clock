@@ -7,6 +7,7 @@
 #include <time.h>
 #include <WiFi.h>
 #include <WiFiUdp.h>
+#include "scheduler.h"
 
 #define HARDWARE_TYPE MD_MAX72XX::FC16_HW
 #define MAX_DEVICES 8
@@ -64,6 +65,17 @@ void setup() {
 
   // Transition to first scene
   scene_switch(scene_clock());
+
+
+
+  // Run tests
+  // ScheduledTask *task;
+  // Serial.printf("Starting tests\n");
+  // task = scheduled_task_create(1<<5, 0, 0, 0, 0, 0, 0x0, 0x0); // Every 5 seconds
+  // Serial.printf("Created scheduled task\n");
+  //Serial.printf("5 secoond task -> %uld\n", scheduler_delta(task));
+  //task = scheduled_task_create(0, 1<<5, 0, 0, 0, 0, 0x0, 0x0); // Every 5 minutes
+  //Serial.printf("5 minute task -> %uld\n", scheduler_delta(task));
 }
 
 void loop() {

@@ -87,23 +87,23 @@ void weather_update(Weather *weather){
   Serial.printf("Successfully parsed body. Symbol=%d, Temperature=%f\n", weather->icon, weather->temperature);
 
   // Set icon
-  if(icon < 6) // sunny
+  if(icon < 6)
     weather->icon = CHARACTER_ICON_SUN;
-  else if(icon < 12) // cloudy
+  else if(icon < 12)
     weather->icon = CHARACTER_ICON_CLOUD;
-  else if(icon < 14) // rainy
+  else if(icon < 14)
     weather->icon = CHARACTER_ICON_RAIN;
-  else if(icon < 18) // thunder
-    weather->icon CHARACTER_ICON_STORM;
-  else if(icon < 20) // more rain
+  else if(icon < 18)
+    weather->icon = CHARACTER_ICON_STORM;
+  else if(icon < 20)
     weather->icon = CHARACTER_ICON_RAIN;
-  else if(icon < 22) // more cloudy
+  else if(icon < 22)
     weather->icon = CHARACTER_ICON_CLOUD;
-  else if(icon < 30) // snowy
+  else if(icon < 30)
     weather->icon = CHARACTER_ICON_SNOW;
-  else if(icon < 35) // more Sunny
-    weather->icon CHARACTER_ICON_SUN;
-  else if(icon < 39) // more cloudy
+  else if(icon < 35)
+    weather->icon = CHARACTER_ICON_SUN;
+  else if(icon < 39) 
     weather->icon = CHARACTER_ICON_CLOUD;
   else if(icon < 41)
     weather->icon = CHARACTER_ICON_RAIN;
@@ -114,7 +114,7 @@ void weather_update(Weather *weather){
   else if(icon < 45)
     weather->icon = CHARACTER_ICON_SNOW;
   else
-    weather->icon = CHARACTER_ICON_SUN
+    weather->icon = CHARACTER_ICON_SUN;
   
   cleanup:
   http.end();

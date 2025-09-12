@@ -42,11 +42,11 @@ const Blueprint letter_blueprint[] = {
     {blueprint_deg_symbol}, // 1
     {blueprint_clock_symbol}, // 2
     {blueprint_counter_symbol}, // 3
-    0x0, // 4
-    0x0, // 5
-    0x0, // 6
-    0x0, // 7
-    0x0, // 8
+    {blueprint_counter_symbol}, // 4
+    {blueprint_counter_symbol}, // 5
+    {blueprint_counter_symbol}, // 6
+    {blueprint_counter_symbol}, // 7
+    {blueprint_counter_symbol}, // 8
     0x0, // 9
     0x0, // 10
     0x0, // 11
