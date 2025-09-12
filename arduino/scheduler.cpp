@@ -2,8 +2,8 @@
 
 unsigned char scheduler_nearest_bit(long vector){
   int i;
-  for(i=0;i<sizeof(vector);i++)
-    if(1<<i & vector)
+  for(i=0;i<sizeof(vector)*8;i++)
+    if((1<<i) & vector)
       return i;
   return 255;
 }
@@ -68,15 +68,13 @@ Date *scheduler_current_date(){
 }
 
 unsigned char scheduler_delta_vector(char vector_size, long vector, long start_pos){
-  int i, offset;
-    
-  offset = 0;
-  for(i=0;i<vector_size;i++){
-    if(i >= vector_size){
-      start_pos = 0;
-      offset = i;
-    }
-    if(vector | 1<<(i+start_pos-offset))
+  char i;
+  long cur;
+
+  for(i=0,cur=start_pos;i<vector_size;i++,cur++){
+    if(cur >= vector_size)
+      cur=0;
+    if(vector & (1<<cur))
       return i;
   }
   return 255;
@@ -94,10 +92,14 @@ unsigned long scheduler_delta(ScheduledTask *task){
 
   // Calculate what time of day cron will fire
   delta_hour = scheduler_delta_vector(24, task->hour, today->hour);
+  delta_hour = delta_hour == 255 ? 0 : delta_hour;
   delta_minute = scheduler_delta_vector(60, task->minute, today->minute);
+  delta_minute = delta_minute == 255 ? 0 : delta_minute;
   delta_second = scheduler_delta_vector(60, task->second, today->second);
+  delta_second = delta_second == 255 ? 0 : delta_second;
   task_seconds = delta_hour*60*60 + delta_minute*60 + delta_second;
   today_seconds = today->hour*60*60 + today->minute*60 + today->second;
+  Serial.printf("Delta hour: %d\nDelta minute: %d\nDelta second: %d\nToday's time: %d");
 
   // Calculate weekdays
   weekdays = scheduler_delta_vector(7, task->weekday, today->weekday);
