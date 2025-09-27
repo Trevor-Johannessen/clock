@@ -25,8 +25,8 @@ typedef struct {
     December -> month |= 1<<(12-1)
 */
 typedef struct {
-  unsigned long second;
-  unsigned long minute;
+  unsigned long long second;
+  unsigned long long minute;
   unsigned int hour;
   unsigned int day;
   unsigned char weekday;
@@ -37,20 +37,22 @@ typedef struct {
 
 extern NTPClient timeClient;
 const int seconds_in_day = 86400;
-const long seconds_in_year = 31556926;
+const long long seconds_in_year = 31536000;
 const char days_in_month[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 Date *scheduler_current_date();
-unsigned long scheduler_delta(ScheduledTask *task);
-unsigned char scheduler_nearest_bit(long vector);
+unsigned int scheduler_delta(ScheduledTask *task);
+unsigned char scheduler_nearest_bit(long long vector);
 void scheduler_check_task(ScheduledTaskQueue *queue);
-unsigned char scheduler_delta_vector(char vector_size, long vector, long start_pos);
-ScheduledTask *scheduled_task_create(unsigned long second, unsigned long minute, unsigned int hour, unsigned int day, unsigned char weekday, unsigned short month, void (*func)(void *), void *args);
+unsigned char scheduler_delta_vector(char vector_size, long long vector, char start_pos);
+ScheduledTask *scheduled_task_create(unsigned long long second, unsigned long long minute, unsigned int hour, unsigned int day, unsigned char weekday, unsigned short month, void (*func)(void *), void *args);
 ScheduledTask *scheduler_get_next(ScheduledTaskQueue *queue);
 void scheduler_insert(ScheduledTaskQueue *queue, ScheduledTask *task);
 ScheduledTaskQueue *scheduler_create();
 void scheduler_free(ScheduledTaskQueue *queue);
 void scheduled_task_free(ScheduledTask *task);
+int scheduler_date_to_seconds(Date date);
+void date_free(Date *date);
 
 
 #endif
