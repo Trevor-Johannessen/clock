@@ -16,8 +16,17 @@ ClockFace *clockface_create(int x, int y, unsigned char settings_vector){
 }
 
 void clockface_erase(ClockFace *cf){
+  clockface_erase_n(cf, 0);
+}
+
+void clockface_erase_n(ClockFace *cf, int n){
+  int i, width;
+
   if(cf->prev_time_string){
-    sentence_write(cf->prev_time_string, cf->x, cf->y);
+    width=0;
+    for(i=0;i<n;i++)
+      width+=character_width(cf->prev_time_string[i])+2;
+    sentence_write(cf->prev_time_string+n, cf->x+width, cf->y);
     free(cf->prev_time_string);
     cf->prev_time_string = 0x0;
   }
@@ -31,7 +40,8 @@ void clockface_free(ClockFace *cf){
 
 void clockface_write(ClockFace *cf, int hour, int minute, int second){
   char *time_string, *suffix;
-  char h[3],m[3],s[3];
+  char h[3],m[3],s[3]; 
+  int i, j, length;
 
   time_string = (char *)calloc(11, sizeof(char));
   suffix = (char *)malloc(3*sizeof(char));
@@ -70,8 +80,13 @@ void clockface_write(ClockFace *cf, int hour, int minute, int second){
   if(!cf->prev_time_string)
     sentence_write(time_string, cf->x, cf->y);
   else if(strcmp(time_string, cf->prev_time_string)){
-    clockface_erase(cf);
-    sentence_write(time_string, cf->x, cf->y);
+    length = strlen(time_string) > strlen(cf->prev_time_string) ? strlen(cf->prev_time_string) : strlen(time_string);
+    for(i=0;i<length && time_string[i] == cf->prev_time_string[i];i++);
+    clockface_erase_n(cf, i);
+    length = 0;
+    for(j=0;j<i;j++)
+      length += character_width(time_string[j])+2;
+    sentence_write(time_string+i, cf->x+length, cf->y);
   }
 
   // Cleanup

@@ -31,6 +31,7 @@ typedef struct {
 
 ClockFace *clockface_create(int x, int y, unsigned char settings_vector);
 void clockface_erase(ClockFace *cf);
+void clockface_erase_n(ClockFace *cf, int n);
 void clockface_free(ClockFace *cf);
 void clockface_write(ClockFace *cf, int hour, int minute, int second);
 void clockface_write_now(ClockFace *cf);
