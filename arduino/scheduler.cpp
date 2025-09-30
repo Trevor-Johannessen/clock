@@ -89,8 +89,11 @@ int scheduler_date_to_seconds(Date date){
 
 void scheduler_print_bit_vector(char size, long long vector){
   int i;
-  for(i=size-1;i>0;i--)
+  for(i=0;i<size;i++){
     Serial.printf("%d", (1<<i & vector) > 0);
+    if((i%8)==7)
+      Serial.printf(" "); 
+  }
   Serial.printf("\n");
 }
 
@@ -109,9 +112,10 @@ unsigned char scheduler_delta_vector(char vector_size, long long vector, char st
 
 unsigned int scheduler_delta(ScheduledTask *task){
   Date *today;
-  unsigned char month_delta, month, days_weekday, days_month, delta_hour, delta_second, delta_minute, delta_day;
+  unsigned char month, days_weekday, days_month, delta_hour, delta_second, delta_minute, delta_day, delta_month;
   unsigned int this_month_vector, interm_months, delta;
-  unsigned int task_hour_cp;
+  unsigned short task_month_cp;
+  unsigned int task_hour_cp, task_day_cp;
   unsigned long long task_min_cp, task_sec_cp;
   int i, j, task_seconds, today_seconds;
 
@@ -126,20 +130,24 @@ unsigned int scheduler_delta(ScheduledTask *task){
   task_hour_cp = task->hour;
   task_min_cp = task->minute;
   task_sec_cp = task->second;
+  task_day_cp = task->day;
+  task_month_cp = task->month;
 
   // Calculate what time of day cron will fire
   delta_second = scheduler_delta_vector(60, task->second, today->second);
-  if(task->second <= today->second){ // Don't consider tasks that have already ran
-    Serial.println("Removing bit from task_min_cp");
+
+  if(task->second <= today->second) // Don't consider tasks that have already ran
     task_min_cp &= ~(1<<today->minute);
-  }
-  Serial.println("Minute bit vector:");
-  scheduler_print_bit_vector(60, task_min_cp);
   delta_minute = scheduler_delta_vector(60, task_min_cp, today->minute);
+  //if(1<<(today->minute-1) > task->minute) // If looping, dont add rest of minute (overflow will solve that)
+  //    delta_minute = scheduler_delta_vector(60, task_min_cp, 0);
+
   if(task->second <= today->second && task->minute <= today->minute)
     task_hour_cp &= ~(1<<today->hour);
   delta_hour = scheduler_delta_vector(24, task_hour_cp, today->hour);
-  Serial.printf("Delta hours (before error correcting) = %d\n Delta minutes = %d\n Delta seconds = %d\n", delta_hour, delta_minute, delta_second);
+  //if(1<<(today->hour-1) > task->hour) // If looping, dont add rest of minute (overflow will solve that)
+  //    delta_hour = scheduler_delta_vector(24, task_hour_cp, 0);
+  //Serial.printf("(before error correcting) Delta hours = %d\nDelta minutes = %d\nDelta seconds = %d\n", delta_hour, delta_minute, delta_second);
   
   // If no specific time is set for a field, default to 0 (start of that period)
   if (delta_hour == 255) delta_hour = 0;
@@ -157,11 +165,28 @@ unsigned int scheduler_delta(ScheduledTask *task){
     if(task->weekday)
       days_month = 999;
   } else { // If day is specified
-    days_month = scheduler_delta_vector(days_in_month[today->month], task->day, today->day-1);
+    if(task->second <= today->second && task->minute <= today->minute && task->hour <= today->hour)
+      task_day_cp &= ~(1<<(today->day-1));
+    days_month = scheduler_delta_vector(days_in_month[today->month-1], task_day_cp, today->day-1);
   }
   delta_day = days_month > days_weekday ? days_weekday : days_month; // take lowest day count
-  Serial.printf("Delta days (before rollover) = %d\nDelta hours = %d\n Delta minutes = %d\n Delta seconds = %d\n", delta_day, delta_hour, delta_minute, delta_second);
+  if (delta_day == 255) delta_day = 0;
+
+  // Calculate until next month
+  if(task->second <= today->second && task->minute <= today->minute && task->hour <= today->hour && task->day <= today->day)
+    task_month_cp &= ~(1<<(today->month-1));
+  //Serial.printf("Month Bit Vector = \n");
+  //scheduler_print_bit_vector(12, task_month_cp);
+  delta_month = scheduler_delta_vector(12, task_month_cp, today->month-1);
+  if (delta_month == 255) delta_month = 0;
+
   // Add rollover
+  if (delta_month > 0){
+    delta_month--;
+    if(!task->day)
+      delta_day+=days_in_month[today->month-1]-today->day+1;
+    //Serial.printf("Delta_day = %d\n", delta_day);
+  }
   if (delta_day > 0){
     delta_day--;
     delta_hour+=(24-today->hour);
@@ -177,7 +202,15 @@ unsigned int scheduler_delta(ScheduledTask *task){
 
   // Calculate current time in seconds since start of day
   task_seconds = delta_day * seconds_in_day + delta_hour*60*60 + delta_minute*60 + delta_second;
-  Serial.printf("Today: (%d-%d-%d %d:%d:%d [%d])\n", today->year, (int)today->month, (int)today->day, (int)today->hour, (int)today->minute, (int)today->second, (int)today->weekday);
+  //Serial.printf("Delta months = %d\nDelta days  = %d\nDelta hours = %d\nDelta minutes = %d\nDelta seconds = %d\n", delta_month, delta_day, delta_hour, delta_minute, delta_second);
+  //Serial.printf("Task_seconds = %d\n", task_seconds);
+  for(i=0;i<delta_month;i++){
+    task_seconds+=days_in_month[(today->month+i)%12]*seconds_in_day;
+    //Serial.printf("Adding %d days (%d seconds)\n", days_in_month[(today->month+i)%12], days_in_month[(today->month+i)%12]*seconds_in_day);
+    if((today->month+i)%12 == 1 && !(today->year%4)) // Feb 29th
+      task_seconds+=seconds_in_day;
+  }
+  //Serial.printf("Today: (%d-%d-%d %d:%d:%d [%d])\n", today->year, (int)today->month, (int)today->day, (int)today->hour, (int)today->minute, (int)today->second, (int)today->weekday);
   
   // Free the allocated date
   date_free(today);
@@ -240,7 +273,6 @@ ScheduledTask *scheduled_task_create(unsigned long long second, unsigned long lo
     Serial.println("ERROR: Failed to allocate memory for ScheduledTask");
     return NULL;
   }
-  Serial.printf("Malloc'd task = %x\n", task);
   task->month = month;
   task->day = day;
   task->hour = hour;
