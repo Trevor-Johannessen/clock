@@ -8,6 +8,14 @@ Link *link_create(){
     return link;
 }
 
+Link *link_create(void *payload){
+    Link *link;
+
+    link = link_create();
+    link->payload = payload;
+    return link;
+}
+
 void link_free(Link *link){
     free(link);
 }

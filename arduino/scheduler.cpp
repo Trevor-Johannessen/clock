@@ -112,6 +112,102 @@ unsigned char scheduler_delta_vector(char vector_size, long long vector, char st
 
 unsigned int scheduler_delta(ScheduledTask *task){
   Date *today;
+  char delta_hour, delta_second, delta_minute, delta_day, delta_month;
+  char start_pos, i;
+  long long seconds;
+
+  delta_second = delta_minute = delta_hour = delta_day = delta_month = 0;
+  today = scheduler_current_date();
+  if (!today) {
+    Serial.println("ERROR: Failed to get current date");
+    return 0;
+  }
+
+  Serial.printf("Task = %llu s, %llu m, %u h, %u D, %u M\n", task->second, task->minute, task->hour, task->day, task->month);
+
+  // Get Seconds
+  delta_second = scheduler_delta_vector(60, task->second, today->second == 59 ? 0 : today->second+1);
+  if(delta_second == 255){
+    delta_second=0;
+    if(task->minute || task->hour || task->day || task->month)
+      delta_second = 60 - today->second;
+  }
+  else
+    delta_second++;
+
+  // Get Minutes
+  start_pos = today->minute;
+  if(60 <= delta_second + today->second)
+    start_pos = today->minute >= 59 ? 0 : today->minute+1;
+  delta_minute = scheduler_delta_vector(60, task->minute, start_pos);
+  if(delta_minute == 255){
+    delta_minute=0;
+    if(task->hour || task->day || task->month)
+      delta_minute = 60 - today->minute-1;
+  }
+
+  // Get Hours
+  start_pos = today->hour;
+  if(60*60 <= (delta_minute + today->minute)*60 + (delta_second + today->second))
+    start_pos = today->hour >= 23 ? 0 : today->hour+1;
+  delta_hour = scheduler_delta_vector(24, task->hour, start_pos);
+  if(delta_hour == 255){
+    delta_hour=0;
+    if(task->day || task->month)
+      delta_hour = 24-today->hour-1;
+  }
+
+  // Get Days
+  start_pos = today->day-1;
+  if(seconds_in_day <= (delta_hour + today->hour)*60*60 + (delta_minute + today->minute)*60 + (delta_second + today->second))
+    start_pos = today->day >= days_in_month[today->month-1] ? 0 : today->day;
+  Serial.printf("Day start pos = %d\n", start_pos);
+  delta_day = scheduler_delta_vector(days_in_month[today->month-1], task->day, start_pos);
+  if(delta_day == 255){
+    delta_day=0;
+    if(task->month)
+      delta_day = days_in_month[today->month-1]-today->day;
+  }
+
+  // Get Months
+  start_pos = today->month-1;
+  if(days_in_month[today->month-1]*seconds_in_day <= (delta_day + today->day-1)*seconds_in_day + (delta_hour + today->hour)*60*60 + (delta_minute + today->minute)*60 + (delta_second + today->second))
+    start_pos = today->month >= 11 ? 0 : today->month;
+  delta_month = scheduler_delta_vector(12, task->month, start_pos);
+  if(delta_month == 255)
+    delta_month = 0;
+
+  Serial.printf("Delta months = %d, Delta days  = %d / %d, Delta hours = %d, Delta minutes = %d, Delta seconds = %d\n", delta_month, delta_day, days_in_month[today->month-1], delta_hour, delta_minute, delta_second);
+
+
+  // Calculate and return result
+  seconds = 0;
+  i=0;
+  if(!task->day || today->day > task->day){
+    i=1;
+    delta_month++;
+  }
+  // if(today->day > task->day && task->day > 1)
+  //   delta_month = delta_month < 0 ? delta_month-1 : 0;
+  Serial.printf("i = %d, delta_month = %d\n", i, delta_month);
+  for(;i<delta_month;i++){
+  // for(;i<delta_month+1;i++){
+    Serial.printf("Adding %d days\n", days_in_month[(today->month-1+i) % 12]);
+    seconds+=days_in_month[(today->month-1+i) % 12]*seconds_in_day;
+  }
+  seconds+=delta_day*seconds_in_day;
+  seconds+=delta_hour*60*60;
+  seconds+=delta_minute*60;
+  seconds+=delta_second;
+  
+  // Free resources
+  date_free(today);
+  
+  return seconds;
+}
+
+unsigned int scheduler_delta_old(ScheduledTask *task){
+  Date *today;
   unsigned char month, days_weekday, days_month, delta_hour, delta_second, delta_minute, delta_day, delta_month;
   unsigned int this_month_vector, interm_months, delta;
   unsigned short task_month_cp;
@@ -139,15 +235,15 @@ unsigned int scheduler_delta(ScheduledTask *task){
   if(task->second <= today->second) // Don't consider tasks that have already ran
     task_min_cp &= ~(1<<today->minute);
   delta_minute = scheduler_delta_vector(60, task_min_cp, today->minute);
-  //if(1<<(today->minute-1) > task->minute) // If looping, dont add rest of minute (overflow will solve that)
-  //    delta_minute = scheduler_delta_vector(60, task_min_cp, 0);
+  if(1<<(today->minute-1) > task->minute) // If looping, dont add rest of minute (overflow will solve that)
+    delta_minute = scheduler_delta_vector(60, task_min_cp, 0);
 
   if(task->second <= today->second && task->minute <= today->minute)
     task_hour_cp &= ~(1<<today->hour);
   delta_hour = scheduler_delta_vector(24, task_hour_cp, today->hour);
-  //if(1<<(today->hour-1) > task->hour) // If looping, dont add rest of minute (overflow will solve that)
-  //    delta_hour = scheduler_delta_vector(24, task_hour_cp, 0);
-  //Serial.printf("(before error correcting) Delta hours = %d\nDelta minutes = %d\nDelta seconds = %d\n", delta_hour, delta_minute, delta_second);
+  if(1<<(today->hour-1) > task->hour) // If looping, dont add rest of minute (overflow will solve that)
+     delta_hour = scheduler_delta_vector(24, task_hour_cp, 0);
+  Serial.printf("(before error correcting) Delta hours = %d\nDelta minutes = %d\nDelta seconds = %d\n", delta_hour, delta_minute, delta_second);
   
   // If no specific time is set for a field, default to 0 (start of that period)
   if (delta_hour == 255) delta_hour = 0;
@@ -226,7 +322,6 @@ ScheduledTaskQueue *scheduler_create(){
     return NULL;
   }
   sched->task_list = 0x0;
-  sched->next_task_seconds = 0;
 
   return sched;
 }
@@ -238,15 +333,56 @@ ScheduledTask *scheduler_get_next(ScheduledTaskQueue *queue){
 }
 
 void scheduler_check_task(ScheduledTaskQueue *queue){
+  unsigned long long now;
+  Link *task_link;
+  ScheduledTask *next_task;
+
   // Check time
-
+  now = timeClient.getEpochTime();
   // If time remove item from linked list
-
+  task_link = queue->task_list;
+  next_task = (ScheduledTask *)task_link->payload;
+  if(now <= next_task->next_trigger)
+    next_task->func(next_task->args);
   // If not a oneoff, reinsert task into list
+  queue->task_list = task_link->next;
+  link_free(task_link);
+  if(!next_task->settings.bits.oneoff)
+    scheduler_insert(queue, next_task);
+  else
+    scheduled_task_free(next_task);
 }
 
 void scheduler_insert(ScheduledTaskQueue *queue, ScheduledTask *task){
+  Link *cur, *cur_prev;
+  ScheduledTask *cur_task;
+  
+  if(!queue || !task)
+    return;
 
+  if(!task->next_trigger)
+    task->next_trigger = scheduler_delta(task);
+
+  if(!queue->task_list){
+    queue->task_list = link_create(task);
+    return;
+  }
+
+  cur=queue->task_list;
+  cur_prev=0x0;
+  while(cur){
+    cur_task = (ScheduledTask *)cur->payload;
+    if(cur_task->next_trigger > task->next_trigger){
+      // Insert task here
+      if(!cur_prev)
+        queue->task_list = link_add_first(cur_prev, task);
+      else
+        link_add_next(cur_prev, task);
+      break;
+    }
+    cur_prev=cur;
+    cur=cur->next;
+  }
 }
 
 void scheduler_free(ScheduledTaskQueue *queue){
@@ -265,7 +401,7 @@ void scheduler_free(ScheduledTaskQueue *queue){
   }
 }
 
-ScheduledTask *scheduled_task_create(unsigned long long second, unsigned long long minute, unsigned int hour, unsigned int day, unsigned char weekday, unsigned short month, void (*func)(void *), void *args){
+ScheduledTask *scheduled_task_create(unsigned long long second, unsigned long long minute, unsigned int hour, unsigned int day, unsigned char weekday, unsigned short month, void (*func)(void *), void *args, unsigned char settings){
   ScheduledTask *task;
 
   task = (ScheduledTask *)malloc(sizeof(ScheduledTask));
@@ -279,14 +415,17 @@ ScheduledTask *scheduled_task_create(unsigned long long second, unsigned long lo
   task->minute = minute;
   task->second = second;
   task->weekday = weekday;
+  task->next_trigger = 0;
   task->func = func;
   task->args = args;
+  task->settings.vector = settings;
    
   return task;
 }
 
 void scheduled_task_free(ScheduledTask *task){
-  if (task) {
+  if(task->args)
+    free(task->args);
+  if (task)
     free(task);
-  }
 }
