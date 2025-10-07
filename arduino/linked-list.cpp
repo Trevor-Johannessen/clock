@@ -64,7 +64,9 @@ Link *link_add_next(Link *head, void *payload){
 
     new_node = link_create();
     new_node->payload = payload;
-    if(head)
+    if(head){
+        new_node->next = head->next;
         head->next = new_node;
+    }
     return new_node;
 }
